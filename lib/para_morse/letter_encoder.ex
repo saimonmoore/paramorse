@@ -2,14 +2,12 @@ defmodule ParaMorse.LetterEncoder do
 
   @morse_signal  1
   @morse_silence  0
-  @morse_dot [ @morse_signal ]
-  @morse_dash [ @morse_signal, @morse_signal, @morse_signal ]
-  @dot [ @morse_dot ]
-  @dash [ @morse_dash ]
+  @dot [ @morse_signal ]
+  @dash [ @morse_signal, @morse_signal, @morse_signal ]
   @morse_part_separator [ @morse_silence ]
   @morse_letter_separator [ @morse_silence, @morse_silence, @morse_silence ]
   @morse_word_separator [ @morse_letter_separator, @morse_letter_separator, @morse_silence ]
-  @more_characters %{
+  @morse_characters %{
     a: [@dot, @dash],
     b: [@dash, @dot, @dot, @dot],
     c: [@dash, @dot, @dash, @dot],
@@ -90,10 +88,27 @@ defmodule ParaMorse.LetterEncoder do
     end
   end
 
+  # Returns a `Map` of the relation of characters to morse codes
+  #
+  # e.g. %{ q: ["111", "111", "1", "111"]}
+  def character_to_morse_code_map do
+    for {k, v} <- @morse_characters, into: %{} do
+      flattened_value = Enum.map(v, fn(c) -> List.flatten(c) |> Enum.join end)
+      {k, flattened_value}
+    end
+  end
+
+  # Returns a `Map` of morse codes to characters
+  #
+  # e.g. %{ ["111", "111", "1", "111"]: :q }
+  def morse_code_to_character_map do
+    for {k, v} <- character_to_morse_code_map, into: %{}, do: {v, k}
+  end
+
   # Looks up a character in the internal map
   # and adds appropriate silences
   defp get_morse_character(character) do
-    Map.get(@more_characters, character)
+    Map.get(character_to_morse_code_map, character)
     |> Enum.intersperse(@morse_silence)
   end
 end

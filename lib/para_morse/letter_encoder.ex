@@ -58,6 +58,9 @@ defmodule ParaMorse.LetterEncoder do
     iex> ParaMorse.LetterEncoder.encode("q")
     "1110111010111"
 
+    iex> ParaMorse.LetterEncoder.encode("Q")
+    "1110111010111"
+
     iex> ParaMorse.LetterEncoder.encode("1")
     "10111011101110111"
 
@@ -79,6 +82,7 @@ defmodule ParaMorse.LetterEncoder do
     cond do
       Kernel.is_binary(char) and String.match?(char, ~r/\w/ui) ->
         String.first(char)
+        |> String.downcase
         |> String.to_atom
         |> get_morse_character
         |> List.flatten
@@ -103,6 +107,17 @@ defmodule ParaMorse.LetterEncoder do
   # e.g. %{ ["111", "111", "1", "111"]: :q }
   def morse_code_to_character_map do
     for {k, v} <- character_to_morse_code_map, into: %{}, do: {v, k}
+  end
+
+  def letter_delimiter do
+    @morse_letter_separator
+    |> Enum.join
+  end
+
+  def word_delimiter do
+    @morse_word_separator
+    |> List.flatten
+    |> Enum.join
   end
 
   # Looks up a character in the internal map

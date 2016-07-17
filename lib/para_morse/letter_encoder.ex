@@ -64,6 +64,12 @@ defmodule ParaMorse.LetterEncoder do
     iex> ParaMorse.LetterEncoder.encode("1")
     "10111011101110111"
 
+    iex> ParaMorse.LetterEncoder.encode(" ")
+    "0000000"
+
+    iex> ParaMorse.LetterEncoder.encode("   ")
+    "0000000"
+
     iex> ParaMorse.LetterEncoder.encode('a')
     :error
 
@@ -87,6 +93,8 @@ defmodule ParaMorse.LetterEncoder do
         |> get_morse_character
         |> List.flatten
         |> Enum.join
+      Kernel.is_binary(char) and String.match?(char, ~r/\s+/) ->
+        @morse_word_separator |> List.flatten |> Enum.join("")
       true ->
         :error
     end

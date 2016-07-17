@@ -163,6 +163,28 @@ defmodule ParaMorse.Queue do
   end
 
   @doc """
+  Removes and returns all elements of a ParaMorse.Queue
+
+  ## Examples
+
+    iex> {:ok, queue} = ParaMorse.Queue.new
+    iex> ParaMorse.Queue.push(queue, 1)
+    iex> ParaMorse.Queue.push(queue, 0)
+    iex> ParaMorse.Queue.push(queue, 1)
+    iex> ParaMorse.Queue.push(queue, 0)
+    iex> ParaMorse.Queue.pop_all(queue)
+    [1,0,1,0]
+    iex> ParaMorse.Queue.to_list(queue)
+    []
+
+  """
+  def pop_all(queue) do
+    list = Agent.get(queue, &(&1))
+    clear(queue)
+    list
+  end
+
+  @doc """
   Removes all elements of a ParaMorse.Queue
 
   ## Examples

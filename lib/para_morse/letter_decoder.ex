@@ -12,6 +12,9 @@ defmodule ParaMorse.LetterDecoder do
     iex> ParaMorse.LetterDecoder.decode("10111")
     "a"
 
+    iex> ParaMorse.LetterDecoder.decode("11")
+    :error
+
     iex> ParaMorse.LetterDecoder.decode("a")
     :error
 
@@ -22,11 +25,20 @@ defmodule ParaMorse.LetterDecoder do
     :error
   """
   def decode(character) do
+    decoded_character = decode_character(character)
+
+    case decoded_character do
+      :error -> :error
+      nil -> :error
+      decoded_character when Kernel.is_atom(decoded_character) ->
+        Atom.to_string(decoded_character)
+    end
+  end
+
+  defp decode_character(character) do
     cond do
-      Kernel.is_binary(character) and String.match?(character, ~r/[01]+/ui) ->
-        String.split(character, "0")
-        |> look_up_morse_code
-        |> Atom.to_string
+      matches_morse_code(character) ->
+        morse_to_alphanumeric(character)
       true ->
         :error
     end
@@ -36,7 +48,14 @@ defmodule ParaMorse.LetterDecoder do
   # and returns the corresponding character.
   defp look_up_morse_code(list_of_coded_elements) do
     map = ParaMorse.LetterEncoder.morse_code_to_character_map
-    character = Map.get(map, list_of_coded_elements)
-    character
+    Map.get(map, list_of_coded_elements)
+  end
+
+  defp matches_morse_code(character) do
+    Kernel.is_binary(character) and String.match?(character, ~r/[01]+/ui)
+  end
+
+  defp morse_to_alphanumeric(character) do
+    String.split(character, "0") |> look_up_morse_code
   end
 end

@@ -34,6 +34,9 @@ defmodule ParaMorse.Encoder do
     iex> ParaMorse.Encoder.decode("1011101110001110111011100010111010001110101")
     "word"
 
+    iex> ParaMorse.Encoder.decode("00010101")
+    "s"
+
     iex> ParaMorse.Encoder.decode("1011101110001010101000101110001110000000101110101000101000111011101000101010100011100000001110001010101000101110100011101110111000101011100011101110100010101010000000111010111011100011101110111000111010001110101000100010111010000000101110111000101000111010001110101000111011101110001011101110000000111010101000101110100010001011100011101011100010101")
     "what light through yonder window breaks"
 
@@ -41,7 +44,7 @@ defmodule ParaMorse.Encoder do
   """
   def decode(string) do
     cond do
-      Kernel.is_binary(string) and String.match?(string, ~r/[01]+/ui) ->
+      matches_morse_code(string) ->
         words = String.split(string, word_delimiter)
         Enum.map(words, fn(word) -> decode_word(word) end)
         |> Enum.join(" ")
@@ -57,8 +60,7 @@ defmodule ParaMorse.Encoder do
   end
 
   defp decode_word(word) do
-    characters = String.split(word, letter_delimiter)
-    Enum.map(characters, fn(char) -> decode_character(char) end)
+    Enum.map(valid_letters(word), fn(char) -> decode_character(char) end)
     |> Enum.join
   end
 
@@ -79,5 +81,14 @@ defmodule ParaMorse.Encoder do
 
   defp word_delimiter do
     ParaMorse.LetterEncoder.word_delimiter
+  end
+
+  defp matches_morse_code(character) do
+    Kernel.is_binary(character) and String.match?(character, ~r/[01]+/ui)
+  end
+
+  defp valid_letters(word) do
+    String.split(word, letter_delimiter)
+    |> Enum.filter(fn(character) -> String.trim(character) |> String.length > 0 end)
   end
 end
